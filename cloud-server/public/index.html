@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Infrastructure Server Control Plane</title>
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; background: #0f172a; color: #38bdf8; padding: 20px; }
+        .panel { border: 1px solid #38bdf8; padding: 15px; margin-bottom: 20px; background: rgba(15, 23, 42, 0.8); }
+        h1, h2, h3 { color: #f8fafc; margin-top: 0; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .resource-bar { background: #334155; height: 20px; border-radius: 10px; overflow: hidden; margin-top: 5px; margin-bottom: 15px;}
+        .resource-fill { background: #3b82f6; height: 100%; transition: width 0.3s ease; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #475569; }
+        th { color: #cbd5e1; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; }
+        .status-running { background: #10b981; color: white; }
+        .status-waiting { background: #f59e0b; color: white; }
+    </style>
+</head>
+<body>
+    <h1>CLOUD SERVER CONTROL PLANE</h1>
+    
+    <div class="grid">
+        <div class="panel">
+            <h2>SERVER STATUS</h2>
+            <p>Status: <span id="server-status" style="color: #10b981; font-weight: bold;">ONLINE</span></p>
+            <p>Cluster ID: <span id="cluster-id">CLS-99X</span></p>
+            <p>Port: 5000</p>
+        </div>
+        
+        <div class="panel">
+            <h2>INFRASTRUCTURE SUMMARY</h2>
+            <div id="ram-summary">
+                <strong>RAM</strong> <span id="ram-text">0 / 32 GB</span>
+                <div class="resource-bar"><div id="ram-fill" class="resource-fill" style="width: 0%;"></div></div>
+            </div>
+            <div id="storage-summary">
+                <strong>STORAGE</strong> <span id="storage-text">0 / 1000 GB</span>
+                <div class="resource-bar"><div id="storage-fill" class="resource-fill" style="width: 0%;"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="panel">
+            <h2>CPU POOL</h2>
+            <div id="cpu-pool"></div>
+        </div>
+        <div class="panel">
+            <h2>GPU POOL</h2>
+            <div id="gpu-pool"></div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="panel">
+            <h2>RUNNING TASKS (<span id="running-count">0</span>)</h2>
+            <table>
+                <thead><tr><th>Task ID</th><th>Type</th><th>Priority</th><th>Action</th></tr></thead>
+                <tbody id="running-tasks-table"></tbody>
+            </table>
+        </div>
+        <div class="panel">
+            <h2>QUEUE (<span id="queue-count">0</span>)</h2>
+            <table>
+                <thead><tr><th>Task ID</th><th>Type</th><th>Priority</th><th>Reason</th></tr></thead>
+                <tbody id="queue-tasks-table"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchData() {
+            try {
+                const [statusRes, resourcesRes, tasksRes, queueRes] = await Promise.all([
+                    fetch('/cloud/status'),
+                    fetch('/cloud/resources'),
+                    fetch('/cloud/tasks'),
+                    fetch('/cloud/queue')
+                ]);
+
+                if (statusRes.ok) {
+                    const status = await statusRes.json();
+                    document.getElementById('server-status').innerText = status.status;
+                    document.getElementById('cluster-id').innerText = status.clusterId;
+                }
+
+                if (resourcesRes.ok) {
+                    const res = await resourcesRes.json();
+                    
+                    document.getElementById('ram-text').innerText = `${res.ram.allocated.toFixed(1)} / ${res.ram.total} GB`;
+                    document.getElementById('ram-fill').style.width = `${(res.ram.allocated / res.ram.total) * 100}%`;
+                    
+                    document.getElementById('storage-text').innerText = `${res.storage.allocated.toFixed(1)} / ${res.storage.total} GB`;
+                    document.getElementById('storage-fill').style.width = `${(res.storage.allocated / res.storage.total) * 100}%`;
+
+                    document.getElementById('cpu-pool').innerHTML = res.cpu.map(c => `
+                        <div>
+                            <strong>${c.id}</strong> - ${c.status}
+                            <div class="resource-bar"><div class="resource-fill" style="width: ${c.allocated}%;"></div></div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('gpu-pool').innerHTML = res.gpu.map(g => `
+                        <div>
+                            <strong>${g.id}</strong> - ${g.status}
+                            <div class="resource-bar"><div class="resource-fill" style="width: ${g.allocated}%;"></div></div>
+                        </div>
+                    `).join('');
+                }
+
+                if (tasksRes.ok) {
+                    const tasks = await tasksRes.json();
+                    const running = tasks.filter(t => t.status === 'RUNNING');
+                    document.getElementById('running-count').innerText = running.length;
+                    document.getElementById('running-tasks-table').innerHTML = running.map(t => `
+                        <tr>
+                            <td>${t.requestId}</td>
+                            <td>${t.taskType}</td>
+                            <td>${t.priority}</td>
+                            <td><button onclick="releaseTask('${t.requestId}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; cursor:pointer;">Release</button></td>
+                        </tr>
+                    `).join('');
+                }
+
+                if (queueRes.ok) {
+                    const queue = await queueRes.json();
+                    document.getElementById('queue-count').innerText = queue.length;
+                    document.getElementById('queue-tasks-table').innerHTML = queue.queue.map(t => `
+                        <tr>
+                            <td>${t.requestId}</td>
+                            <td>${t.taskType}</td>
+                            <td>${t.priority}</td>
+                            <td><small>${t.waitReason || 'WAITING'}</small></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error("Error fetching data", err);
+            }
+        }
+
+        async function releaseTask(taskId) {
+            await fetch(`/cloud/release/${taskId}`, { method: 'POST' });
+            fetchData();
+        }
+
+        fetchData();
+        setInterval(fetchData, 1000);
+    </script>
+</body>
+</html>

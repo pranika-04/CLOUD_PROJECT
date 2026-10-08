@@ -1,0 +1,122 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.statLabel {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.queueItemHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 12px;
+}
+
+.position {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 40px;
+}
+
+.taskInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.id {
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-main);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.name {
+  font-weight: 500;
+}
+
+.priority {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-main);
+}
+
+.scoreInfo {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.totalScore {
+  font-weight: 700;
+  color: var(--accent-primary);
+  font-size: 16px;
+  margin-left: 4px;
+}
+
+.queueItemBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.reasonBlock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reasonBlock strong {
+  color: var(--accent-warning);
+  background: #fef3c7;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.reasonText {
+  color: var(--text-secondary);
+}
+
+.resourceBlock {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.timeBlock {
+  color: var(--text-secondary);
+}

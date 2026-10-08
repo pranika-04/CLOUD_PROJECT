@@ -1,0 +1,125 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-top: 16px;
+  color: var(--text-secondary);
+}
+
+.formulas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.formulas h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  border: none;
+  padding: 0;
+}
+
+.codeBlock {
+  font-family: var(--font-mono);
+  background-color: var(--bg-main);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--accent-primary);
+  border: 1px solid var(--border-color);
+}
+
+.evalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 16px;
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.val {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.decisionBadge {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.allocated {
+  background-color: #dcfce7;
+  color: var(--accent-success);
+}
+
+.queued {
+  background-color: #fef3c7;
+  color: var(--accent-warning);
+}
+
+.evalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.evalBox {
+  background-color: var(--bg-main);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.evalBox h4 {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.bigScore {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.calcDetails {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.reqList {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reasonBox {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #fee2e2;
+  color: var(--accent-danger);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+}
